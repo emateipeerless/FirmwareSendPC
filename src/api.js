@@ -59,13 +59,14 @@ export async function listFiles({ listUrl, bucket, prefix }) {
   return parseJsonResponse(res);
 }
 
-export async function startSend({ sendUrl, bucket, key }) {
+export async function startSend({ sendUrl, bucket, key, topic }) {
   const res = await fetch(sendUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       s3_bucket: bucket,
       s3_key: key,
+      topic,
     }),
   });
   return parseJsonResponse(res);
@@ -100,11 +101,12 @@ export async function sendFile({
   statusUrl,
   bucket,
   key,
+  topic,
   onProgress,
   pollMs = 1500,
   maxWaitMs = 20 * 60 * 1000,
 }) {
-  const started = await startSend({ sendUrl, bucket, key });
+  const started = await startSend({ sendUrl, bucket, key, topic });
   const jobId = started.job_id;
   if (!jobId) {
     return started;

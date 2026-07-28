@@ -39,8 +39,53 @@
 
 .controls {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1.25rem;
+}
+
+.device-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 12rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.device-field input {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  padding: 0.65rem 0.75rem;
+  outline: none;
+  max-width: 16rem;
+}
+
+.device-field input:focus {
+  border-color: var(--accent);
+}
+
+.device-field input:disabled {
+  opacity: 0.55;
+}
+
+.topic-hint {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.topic-hint code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--text);
 }
 
 .file-panel {

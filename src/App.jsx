@@ -11,12 +11,17 @@ const S3_PREFIX = "7-22-firmware/";
 export default function App() {
   const [files, setFiles] = useState([]);
   const [selectedKey, setSelectedKey] = useState(null);
+  const [deviceId, setDeviceId] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState(null);
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState(null);
   const logEndRef = useRef(null);
+
+  const topicPreview = deviceId.trim()
+    ? `PeerConn/${deviceId.trim()}/firmware`
+    : "PeerConn/{deviceId}/firmware";
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -54,9 +59,15 @@ export default function App() {
 
   const onSend = async () => {
     if (!selectedKey) return;
+    const id = deviceId.trim();
+    if (!id) {
+      setError("Enter a device ID before sending");
+      return;
+    }
+    const topic = `PeerConn/${id}/firmware`;
     setError(null);
     setLogs([]);
-    setStatus("Starting send…");
+    setStatus(`Starting send to ${topic}…`);
     setSending(true);
     try {
       if (!SEND_URL) {
@@ -67,6 +78,7 @@ export default function App() {
         statusUrl: STATUS_URL,
         bucket: S3_BUCKET,
         key: selectedKey,
+        topic,
         onProgress: (job) => {
           if (Array.isArray(job.logs) && job.logs.length) {
             setLogs(job.logs);
@@ -105,6 +117,19 @@ export default function App() {
       </header>
 
       <section className="controls">
+        <label className="device-field">
+          Device ID
+          <input
+            value={deviceId}
+            onChange={(e) => setDeviceId(e.target.value)}
+            placeholder="125"
+            spellCheck={false}
+            disabled={sending}
+          />
+          <span className="topic-hint">
+            Topic: <code>{topicPreview}</code>
+          </span>
+        </label>
         <button type="button" className="btn secondary" onClick={refresh} disabled={loading || sending}>
           {loading ? "Loading…" : "Refresh list"}
         </button>
@@ -154,7 +179,7 @@ export default function App() {
           type="button"
           className="btn primary"
           onClick={onSend}
-          disabled={!selectedKey || sending}
+          disabled={!selectedKey || !deviceId.trim() || sending}
         >
           {sending ? "Sending…" : "Send File"}
         </button>
